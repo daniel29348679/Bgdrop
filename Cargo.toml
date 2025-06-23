@@ -1,0 +1,12 @@
+[package]
+name = "bgdrop"
+version = "0.1.1"
+edition = "2024"
+license = "MIT"
+description = "A Rust crate that uses a dedicated thread and channel to reduce latency caused by memory deallocation."
+repository = "https://github.com/daniel29348679/Bgdrop"
+readme = "README.md"
+keywords = ["memory", "deallocation", "performance", "drop", "thread"]
+categories = ["memory-management", "concurrency", "performance"]
+
+[dependencies]
