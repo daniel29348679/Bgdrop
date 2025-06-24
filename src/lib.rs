@@ -14,16 +14,17 @@ mod tests {
         bgdrop.drop(42);
     }
 
-    struct tree_node {
+    #[allow(dead_code)]
+    struct TreeNode {
         value: i32,
-        left: Option<Box<tree_node>>,
-        right: Option<Box<tree_node>>,
+        left: Option<Box<TreeNode>>,
+        right: Option<Box<TreeNode>>,
     }
-    fn build_a_linked_list(height: u32) -> Option<Box<tree_node>> {
+    fn build_a_linked_list(height: u32) -> Option<Box<TreeNode>> {
         if height == 0 {
             return None;
         }
-        Some(Box::new(tree_node {
+        Some(Box::new(TreeNode {
             value: height as i32,
             left: build_a_linked_list(height - 1),
             right: build_a_linked_list(height - 1),

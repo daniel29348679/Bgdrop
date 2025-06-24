@@ -1,9 +1,23 @@
 # `Bgdrop`
 
 **A minimal background dropper for Rust.**
-Free memory in background threads to reduce latency spikes in critical paths.
+Free memory in background threads to reduce latency spikes by 100 times.
+
+
+```bash
+---- tests::benchmark stdout ----
+Duration without background drop: 27.3477ms
+Duration with background drop: 108.5µs
+Duration with background drop and threads: 105.2µs
+Speedup with background drop: 252.05x
+Speedup with background drop and threads: 259.96x
+```
+Test results by releasing 1000 trees of 1000 nodes each.
 
 ---
+
+
+
 
 ## 📦 Installation
 * Edit Cargo.toml

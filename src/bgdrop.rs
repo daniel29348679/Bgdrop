@@ -10,6 +10,7 @@ pub struct Bgdrop {
 // not using dyn would require a specific type, which is not flexible and won't improve performance very much
 
 impl Bgdrop {
+    /// Creates a new `Bgdrop` instance with a single background thread.
     pub fn new() -> Self {
         let (sender, receiver) = unbounded::<Box<dyn Send>>();
 
@@ -22,6 +23,7 @@ impl Bgdrop {
         Bgdrop { sender }
     }
 
+    /// Creates a new `Bgdrop` instance with the specified number of background threads.
     pub fn with_threads(num_threads: usize) -> Self {
         let (sender, receiver) = unbounded::<Box<dyn Send>>();
 
@@ -36,7 +38,15 @@ impl Bgdrop {
 
         Bgdrop { sender }
     }
-
+    /// Drops a value in the background thread.
+    /// The value must implement `Send` and have a `'static` lifetime.
+    /// # Example
+    /// ```rust
+    /// use bgdrop::Bgdrop;
+    /// let bgdrop = Bgdrop::new();
+    /// bgdrop.drop(42);
+    /// // You can also drop more complex types
+    /// ```
     pub fn drop<T: Send + 'static>(&self, value: T) {
         let _ = self.sender.send(Box::new(value));
     }
