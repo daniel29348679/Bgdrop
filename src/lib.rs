@@ -14,49 +14,74 @@ mod tests {
         bgdrop.drop(42);
     }
 
+    struct tree_node {
+        value: i32,
+        left: Option<Box<tree_node>>,
+        right: Option<Box<tree_node>>,
+    }
+    fn build_a_linked_list(height: u32) -> Option<Box<tree_node>> {
+        if height == 0 {
+            return None;
+        }
+        Some(Box::new(tree_node {
+            value: height as i32,
+            left: build_a_linked_list(height - 1),
+            right: build_a_linked_list(height - 1),
+        }))
+    }
+
     #[test]
-    fn benchmark_with_threads() {
-        let bgdrop = Bgdrop::with_threads(1);
+    fn benchmark() {
+        let tree_height = 10;
+        //test without background drop
         let mut vecs = Vec::new();
-        for i in 0..100_000 {
-            let vec = vec![i; 1000];
-            vecs.push(vec); // Keep the vec alive until the end of the test
+        for _ in 0..1000 {
+            vecs.push(build_a_linked_list(tree_height));
         }
         let start = Instant::now();
         for vec in vecs {
-            bgdrop.drop(vec); // Drop each vector in the background
+            drop(vec);
         }
-        let duration = start.elapsed();
-        println!("Dropped 100,000 vectors in background in {:?}", duration);
+        let duration_normal = start.elapsed();
 
-        let bgdrop = Bgdrop::with_threads(1);
-        let mut vecs = Vec::new();
-        for i in 0..100_000 {
-            let vec = vec![i; 1000];
-            vecs.push(vec); // Keep the vec alive until the end of the test
+        //test with background drop
+        let bgdrop = Bgdrop::new();
+        let mut vecs_bg = Vec::new();
+        for _ in 0..1000 {
+            vecs_bg.push(build_a_linked_list(tree_height));
         }
-        let start = Instant::now();
-        for vec in vecs {
-            bgdrop.drop(vec); // Drop each vector in the background     
+        let start_bg = Instant::now();
+        for vec in vecs_bg {
+            bgdrop.drop(vec);
         }
-        let duration = start.elapsed();
+        let duration_bg = start_bg.elapsed();
+
+        // test multiple threads
+        let bgdrop_threads = Bgdrop::with_threads(4);
+        let mut vecs_bg_threads = Vec::new();
+        for _ in 0..1000 {
+            vecs_bg_threads.push(build_a_linked_list(tree_height));
+        }
+        let start_bg_threads = Instant::now();
+        for vec in vecs_bg_threads {
+            bgdrop_threads.drop(vec);
+        }
+        let duration_bg_threads = start_bg_threads.elapsed();
+
+        // Print the durations
+        println!("Duration without background drop: {:?}", duration_normal);
+        println!("Duration with background drop: {:?}", duration_bg);
         println!(
-            "Dropped 100,000 vectors in background with 4 threads in {:?}",
-            duration
+            "Duration with background drop and threads: {:?}",
+            duration_bg_threads
         );
-
-        // use normal drop to ensure the background thread has time to process
-        let mut vecs = Vec::new();
-        for i in 0..100_000 {
-            let vec = vec![i; 1000];
-            vecs.push(vec); // Keep the vec alive until the end of the tests    
-        }
-
-        let start = Instant::now();
-        for vec in vecs {
-            drop(vec); // Drop each vector normally
-        }
-        let duration = start.elapsed();
-        println!("Dropped 100,000 vectors normally in {:?}", duration);
+        println!(
+            "Speedup with background drop: {:.2}x",
+            duration_normal.as_secs_f64() / duration_bg.as_secs_f64()
+        );
+        println!(
+            "Speedup with background drop and threads: {:.2}x",
+            duration_normal.as_secs_f64() / duration_bg_threads.as_secs_f64()
+        );
     }
 }
