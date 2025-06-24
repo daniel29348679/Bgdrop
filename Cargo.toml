@@ -10,3 +10,4 @@ keywords = ["memory", "deallocation", "performance", "drop", "thread"]
 categories = ["memory-management", "concurrency", "performance"]
 
 [dependencies]
+crossbeam = "0.8"

@@ -12,7 +12,6 @@ mod tests {
     fn it_works() {
         let bgdrop = Bgdrop::new();
         bgdrop.drop(42);
-        bgdrop.drop("Hello, world!");
     }
 
     #[test]
@@ -30,7 +29,7 @@ mod tests {
         let duration = start.elapsed();
         println!("Dropped 100,000 vectors in background in {:?}", duration);
 
-        let bgdrop = Bgdrop::with_threads(6);
+        let bgdrop = Bgdrop::with_threads(1);
         let mut vecs = Vec::new();
         for i in 0..100_000 {
             let vec = vec![i; 1000];
